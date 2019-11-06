@@ -2,6 +2,7 @@
 #define TRANSFERS_H
 
 #include <stdint.h>
+#include "bundle.h"
 #include "iota_types.h"
 
 typedef enum {
@@ -91,6 +92,20 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle(
         iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
         iota_wallet_bundle_description_t * bundle_desciption);
 
+/**
+ * @brief Creates a IOTA transaction bundle by given input & output txs
+ * within the bundle_description
+ * @param bundle_hash_receiver_ptr Pointer function which receives the bundle hash.
+ * @param tx_receiver_ptr Pointer function which receives every tx_object within the bundle
+ * @param bundle_description
+ * @param bundle_ctx Pointer to externally allocated bundle context structure
+ * @return iota_wallet_status_codes_t
+ */
+iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
+        iota_wallet_bundle_hash_receiver_ptr_t bundle_hash_receiver_ptr,
+        iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
+        iota_wallet_bundle_description_t *bundle_description,
+        BUNDLE_CTX *bundle_ctx);
 /**
  *
  * @param buffer the raw transaction char buffer. Size = 2674. Last byte = '\0'

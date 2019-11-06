@@ -292,7 +292,17 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle(
         iota_wallet_bundle_hash_receiver_ptr_t bundle_hash_receiver_ptr,
         iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
         iota_wallet_bundle_description_t *bundle_desciption) {
+    BUNDLE_CTX bundle_ctx;
 
+    return iota_wallet_create_tx_bundle_mem(bundle_hash_receiver_ptr,
+        tx_receiver_ptr, bundle_desciption, &bundle_ctx);
+}
+
+iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
+        iota_wallet_bundle_hash_receiver_ptr_t bundle_hash_receiver_ptr,
+        iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
+        iota_wallet_bundle_description_t *bundle_desciption,
+        BUNDLE_CTX *bundle_ctx) {
     char *seed_chars = bundle_desciption->seed;
     uint8_t security = bundle_desciption->security;
     iota_wallet_tx_output_t *outputs = bundle_desciption->output_txs;
@@ -304,12 +314,11 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle(
 
     char bundle_hash[NUM_HASH_TRYTES];
     tryte_t normalized_bundle_hash_ptr[NUM_HASH_TRYTES];
-    BUNDLE_CTX bundle_ctx;
     if ((num_outputs == 0) && (num_zeros == 0)) {
         return BUNDLE_CREATION_INVALID;
     }
-    construct_bundle(&bundle_ctx, normalized_bundle_hash_ptr, bundle_desciption);
-    bytes_to_chars(bundle_get_hash(&bundle_ctx), bundle_hash, NUM_HASH_BYTES);
+    construct_bundle(bundle_ctx, normalized_bundle_hash_ptr, bundle_desciption);
+    bytes_to_chars(bundle_get_hash(bundle_ctx), bundle_hash, NUM_HASH_BYTES);
 
     if(!bundle_hash_receiver_ptr(bundle_hash)){
         return BUNDLE_CREATION_BUNDLE_RECEIVER_ERROR;
