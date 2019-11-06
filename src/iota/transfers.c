@@ -10,7 +10,7 @@
 #include "addresses.h"
 #include "bundle.h"
 #include "signing.h"
-#include "../aux.h"
+#include "../utils.h"
 #include "common.h"
 
 #define ZERO_TAG "999999999999999999999999999"

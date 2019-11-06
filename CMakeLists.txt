@@ -23,8 +23,8 @@ set(SOURCE_FILES
         src/keccak/options.h
         src/keccak/sha3.c
         src/keccak/sha3.h
-        src/aux.c
-		src/aux.h
+        src/utils.c
+        src/utils.h
 		)
 
 add_library(iota_wallet STATIC ${SOURCE_FILES})

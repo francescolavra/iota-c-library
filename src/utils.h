@@ -1,5 +1,5 @@
-#ifndef AUX_H
-#define AUX_H
+#ifndef IOTA_UTILS_H
+#define IOTA_UTILS_H
 
 #include <stdbool.h>
 
@@ -17,4 +17,4 @@ bool validate_chars(const char *chars, unsigned int num_chars);
  */
 void rpad_chars(char *destination, const char *source, unsigned int num_chars);
 
-#endif // AUX_H
+#endif // IOTA_UTILS_H

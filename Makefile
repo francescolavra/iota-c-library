@@ -6,7 +6,7 @@ BUILD_DIR = build
 
 IOTA_OBJ = addresses bundle conversion kerl signing transfers common
 KECCAK_OBJ = sha3
-SRC_OBJ = aux
+SRC_OBJ = utils
 OBJ = $(IOTA_OBJ) $(KECCAK_OBJ) $(SRC_OBJ)
 
 CFLAGS = -I$(SRC_DIR) -I$(IOTA_SRC_DIR) -I$(KECCAK_SRC_DIR)
