@@ -144,12 +144,15 @@ static void normalize_bundle_hash(
  * @param bundle_ctx
  * @param normalized_bundle_hash_ptr
  * @param bundle_object_ptr
- * @param bundle_hash_reveicer
+ * @param yield function that, if not NULL, is called after each step of the
+ *        (computationally intensive) bundle validation procedure; may be used
+ *        to update the user interface and similar things
  */
 static void construct_bundle(
         BUNDLE_CTX *bundle_ctx,
         tryte_t normalized_bundle_hash_ptr[NUM_HASH_TRYTES],
-        iota_wallet_bundle_description_t *bundle_object_ptr) {
+        iota_wallet_bundle_description_t *bundle_object_ptr,
+        void (*yield)(void)) {
 
     uint8_t security = bundle_object_ptr->security;
     iota_wallet_tx_output_t *outputs = bundle_object_ptr->output_txs;
@@ -184,7 +187,7 @@ static void construct_bundle(
                 bundle_object_ptr->change_tx);
     }
 
-    uint32_t tag_increment = bundle_finalize(bundle_ctx);
+    uint32_t tag_increment = bundle_finalize(bundle_ctx, yield);
     normalize_bundle_hash(normalized_bundle_hash_ptr, bundle_ctx, tag_increment,
             tag);
 }
@@ -295,14 +298,14 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle(
     BUNDLE_CTX bundle_ctx;
 
     return iota_wallet_create_tx_bundle_mem(bundle_hash_receiver_ptr,
-        tx_receiver_ptr, bundle_desciption, &bundle_ctx);
+        tx_receiver_ptr, bundle_desciption, &bundle_ctx, NULL);
 }
 
 iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
         iota_wallet_bundle_hash_receiver_ptr_t bundle_hash_receiver_ptr,
         iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
         iota_wallet_bundle_description_t *bundle_desciption,
-        BUNDLE_CTX *bundle_ctx) {
+        BUNDLE_CTX *bundle_ctx, void (*yield)(void)) {
     char *seed_chars = bundle_desciption->seed;
     uint8_t security = bundle_desciption->security;
     iota_wallet_tx_output_t *outputs = bundle_desciption->output_txs;
@@ -317,7 +320,8 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
     if ((num_outputs == 0) && (num_zeros == 0)) {
         return BUNDLE_CREATION_INVALID;
     }
-    construct_bundle(bundle_ctx, normalized_bundle_hash_ptr, bundle_desciption);
+    construct_bundle(bundle_ctx, normalized_bundle_hash_ptr, bundle_desciption,
+        yield);
     bytes_to_chars(bundle_get_hash(bundle_ctx), bundle_hash, NUM_HASH_BYTES);
 
     if(!bundle_hash_receiver_ptr(bundle_hash)){

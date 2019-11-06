@@ -296,7 +296,7 @@ bool bundle_validating_finalize(BUNDLE_CTX *ctx, uint32_t change_index,
            bundle_validate_hash(ctx);
 }
 
-unsigned int bundle_finalize(BUNDLE_CTX *ctx)
+unsigned int bundle_finalize(BUNDLE_CTX *ctx, void (*yield)(void))
 {
     unsigned int tag_increment = 0;
 
@@ -305,6 +305,9 @@ unsigned int bundle_finalize(BUNDLE_CTX *ctx)
     }
 
     while (!bundle_validate_hash(ctx)) {
+        if (yield) {
+            yield();
+        }
         // increment the tag of the first transaction
         bytes_increment_trit_area_81(ctx->bytes + 48);
         tag_increment++;

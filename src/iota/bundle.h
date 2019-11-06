@@ -67,10 +67,13 @@ uint32_t bundle_add_tx(BUNDLE_CTX *ctx, int64_t value, const char *tag,
 
 /** @brief Finalizes the bundle by computing the valid bundle hash.
  *  @param ctx the bundle context used.
+ *  @param yield function that, if not NULL, is called after each step of the
+ *         (computationally intensive) bundle validation procedure; may be used
+ *         to update the user interface and similar things
  *  @return tag increment of the first transaction that was necessary to
  *          generate a valid bundle
  */
-unsigned int bundle_finalize(BUNDLE_CTX *ctx);
+unsigned int bundle_finalize(BUNDLE_CTX *ctx, void (*yield)(void));
 
 /** @brief Finalizes the bundle, if it has a valid bundle hash.
  *  A bundle is valid, if a) values sum up to 0 b) the index of each input

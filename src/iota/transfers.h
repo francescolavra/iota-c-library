@@ -99,13 +99,16 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle(
  * @param tx_receiver_ptr Pointer function which receives every tx_object within the bundle
  * @param bundle_description
  * @param bundle_ctx Pointer to externally allocated bundle context structure
+ * @param yield function that, if not NULL, is called after each step of the
+ *        (computationally intensive) bundle validation procedure; may be used
+ *        to update the user interface and similar things
  * @return iota_wallet_status_codes_t
  */
 iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
         iota_wallet_bundle_hash_receiver_ptr_t bundle_hash_receiver_ptr,
         iota_wallet_tx_receiver_ptr_t tx_receiver_ptr,
         iota_wallet_bundle_description_t *bundle_description,
-        BUNDLE_CTX *bundle_ctx);
+        BUNDLE_CTX *bundle_ctx, void (*yield)(void));
 /**
  *
  * @param buffer the raw transaction char buffer. Size = 2674. Last byte = '\0'
