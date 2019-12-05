@@ -236,7 +236,9 @@ static void cpy_zero_tx_to_tx_object(
     tx_object->lastIndex = last_index;
 }
 
+#ifdef IOTA_THREADSAFE
 static mutex_t iota_wallet_tx_mutex;
+#endif
 
 /**
  *
