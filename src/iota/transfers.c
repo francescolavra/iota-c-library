@@ -94,11 +94,13 @@ static void clear_tx_object_buffer(iota_wallet_tx_object_t *tx_object) {
 static void add_input_tx_to_bundle(
         BUNDLE_CTX *ctx, uint8_t security, uint32_t timestamp, iota_wallet_tx_input_t *input) {
 
+    unsigned int j;
+
     bundle_set_internal_address(ctx, input->address, input->key_index);
     bundle_add_tx(ctx, -input->value, ZERO_TAG, timestamp);
 
     // add signature transaction
-    for (unsigned int j = 1; j < security; j++) {
+    for (j = 1; j < security; j++) {
         bundle_set_internal_address(ctx, input->address, input->key_index);
         bundle_add_tx(ctx, 0, ZERO_TAG, timestamp);
     }
@@ -163,6 +165,7 @@ static void construct_bundle(
     unsigned int num_inputs = bundle_object_ptr->input_txs_length;
     uint32_t timestamp = bundle_object_ptr->timestamp;
     char *tag = (num_outputs ? outputs[0].tag : zeros[0].tag);
+    unsigned int i;
 
     const unsigned int num_txs = num_outputs + num_zeros + num_inputs * security
             + !!bundle_object_ptr->change_tx;
@@ -170,15 +173,15 @@ static void construct_bundle(
 
     bundle_initialize(bundle_ctx, last_tx_index);
 
-    for (unsigned int i = 0; i < num_outputs; i++) {
+    for (i = 0; i < num_outputs; i++) {
         add_output_tx_to_bundle(bundle_ctx, timestamp, &outputs[i]);
     }
 
-    for (unsigned int i = 0; i < num_zeros; i++) {
+    for (i = 0; i < num_zeros; i++) {
         add_zero_tx_to_bundle(bundle_ctx, timestamp, &zeros[i]);
     }
 
-    for (unsigned int i = 0; i < num_inputs; i++) {
+    for (i = 0; i < num_inputs; i++) {
         add_input_tx_to_bundle(bundle_ctx, security, timestamp, &inputs[i]);
     }
 
@@ -256,7 +259,8 @@ static uint32_t construct_singature_for_input_tx(
         uint32_t zero_tx_start_index) {
 
     uint32_t tx_index = tx_object->currentIndex;
-    for (unsigned int i = 0; i < security; i++) {
+    unsigned int i;
+    for (i = 0; i < security; i++) {
         unsigned char signature_bytes[27 * 48];
 
         // Because the first signature segment is in the input tx itself.
@@ -339,7 +343,8 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
 
     // OUTPUT TX OBJECTS
     int idx = 0;
-    for (unsigned int i = 0; i < num_outputs; i++) {
+    unsigned int i;
+    for (i = 0; i < num_outputs; i++) {
         mutex_lock(&iota_wallet_tx_mutex);
 
         clear_tx_object_buffer(&tx_object);
@@ -357,7 +362,7 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
     }
 
     // ZERO TX OBJECTS
-    for (unsigned int i = 0; i < num_zeros; i++) {
+    for (i = 0; i < num_zeros; i++) {
         mutex_lock(&iota_wallet_tx_mutex);
 
         clear_tx_object_buffer(&tx_object);
@@ -378,7 +383,7 @@ iota_wallet_status_codes_t iota_wallet_create_tx_bundle_mem(
     uint32_t next_signature_segment_index = last_without_security_tx_index;
     unsigned char seed_bytes[48];
     chars_to_bytes(seed_chars, seed_bytes, 81);
-    for (unsigned int i = 0; i < num_inputs; i++) {
+    for (i = 0; i < num_inputs; i++) {
         mutex_lock(&iota_wallet_tx_mutex);
         clear_tx_object_buffer(&tx_object);
 

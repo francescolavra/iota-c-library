@@ -55,7 +55,9 @@ static const char tryte_to_char_mapping[] = "NOPQRSTUVWXYZ9ABCDEFGHIJKLM";
 int trytes_to_trits(const tryte_t trytes_in[], trit_t trits_out[],
                     unsigned int tryte_len)
 {
-    for (unsigned int i = 0; i < tryte_len; i++) {
+    unsigned int i;
+
+    for (i = 0; i < tryte_len; i++) {
         int8_t idx = (int8_t)trytes_in[i] + 13;
         trits_out[i * 3 + 0] = trits_mapping[idx][0];
         trits_out[i * 3 + 1] = trits_mapping[idx][1];
@@ -71,8 +73,9 @@ int trits_to_trytes(const trit_t trits_in[], tryte_t trytes_out[],
         return -1;
     }
     unsigned int tryte_len = trit_len / 3;
+    unsigned int i;
 
-    for (unsigned int i = 0; i < tryte_len; i++) {
+    for (i = 0; i < tryte_len; i++) {
         trytes_out[i] = trits_in[i * 3 + 0] + trits_in[i * 3 + 1] * 3 +
                         trits_in[i * 3 + 2] * 9;
     }
@@ -85,7 +88,9 @@ int trits_to_trytes(const trit_t trits_in[], tryte_t trytes_out[],
 int chars_to_trytes(const char chars_in[], tryte_t trytes_out[],
                     unsigned int len)
 {
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i;
+
+    for (i = 0; i < len; i++) {
         if (chars_in[i] == '9') {
             trytes_out[i] = 0;
         }
@@ -102,7 +107,9 @@ int chars_to_trytes(const char chars_in[], tryte_t trytes_out[],
 int trytes_to_chars(const tryte_t trytes_in[], char chars_out[],
                     unsigned int len)
 {
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i;
+
+    for (i = 0; i < len; i++) {
         chars_out[i] = tryte_to_char_mapping[trytes_in[i] + 13];
     }
 
@@ -151,7 +158,9 @@ static inline bool bigint_is_negative(const uint32_t *bigint)
 
 static int bigint_cmp(const uint32_t *a, const uint32_t *b)
 {
-    for (unsigned int i = 12; i-- > 0;) {
+    unsigned int i;
+
+    for (i = 12; i-- > 0;) {
         if (a[i] < b[i]) {
             return -1;
         }
@@ -174,7 +183,8 @@ static inline bool addcarry_u32(uint32_t *r, uint32_t a, uint32_t b, bool c_in)
 static bool bigint_add(uint32_t *r, const uint32_t *a, const uint32_t *b)
 {
     bool carry = false;
-    for (unsigned int i = 0; i < 12; i++) {
+    unsigned int i;
+    for (i = 0; i < 12; i++) {
         carry = addcarry_u32(&r[i], a[i], b[i], carry);
     }
 
@@ -184,7 +194,8 @@ static bool bigint_add(uint32_t *r, const uint32_t *a, const uint32_t *b)
 static bool bigint_sub(uint32_t *r, const uint32_t *a, const uint32_t *b)
 {
     bool carry = true;
-    for (unsigned int i = 0; i < 12; i++) {
+    unsigned int i;
+    for (i = 0; i < 12; i++) {
         carry = addcarry_u32(&r[i], a[i], ~b[i], carry);
     }
 
@@ -197,11 +208,12 @@ static bool bigint_sub(uint32_t *r, const uint32_t *a, const uint32_t *b)
 unsigned int bigint_add_u32_mem(uint32_t *a, uint32_t summand)
 {
     bool carry = addcarry_u32(&a[0], a[0], summand, false);
+    unsigned int i;
     if (carry == false) {
         return 0;
     }
 
-    for (unsigned int i = 1; i < 12; i++) {
+    for (i = 1; i < 12; i++) {
         carry = addcarry_u32(&a[i], a[i], 0, true);
         if (carry == false) {
             return i;
@@ -222,8 +234,9 @@ static uint32_t bigint_mult_byte_mem(uint32_t *a, uint8_t factor,
                                      unsigned int ms_index)
 {
     uint32_t carry = 0;
+    unsigned int i;
 
-    for (unsigned int i = 0; i <= ms_index; i++) {
+    for (i = 0; i <= ms_index; i++) {
         const uint64_t v = (uint64_t)factor * a[i] + carry;
 
         carry = v >> 32;
@@ -239,8 +252,9 @@ static uint32_t bigint_mult_byte_mem(uint32_t *a, uint8_t factor,
 static uint32_t bigint_div_byte_mem(uint32_t *a, uint8_t divisor)
 {
     uint32_t remainder = 0;
+    unsigned int i;
 
-    for (unsigned int i = 12; i-- > 0;) {
+    for (i = 12; i-- > 0;) {
         const uint64_t v = UINT64_C(0x100000000) * remainder + a[i];
 
         remainder = v % divisor;
@@ -275,10 +289,11 @@ static bool bigint_set_last_trit_zero(uint32_t *bigint)
 static void trits_to_bigint(const trit_t *trits, uint32_t *bigint)
 {
     unsigned int ms_index = 0; // initialy there is no most significant word >0
+    unsigned int i;
     memset(bigint, 0, 12 * sizeof(bigint[0]));
 
     // ignore the 243th trit, as it cannot be fully represented in 48 bytes
-    for (unsigned int i = 242; i-- > 0;) {
+    for (i = 242; i-- > 0;) {
         // convert to non-balanced ternary
         const uint8_t trit = trits[i] + 1;
 
@@ -312,6 +327,8 @@ static void trits_to_bigint(const trit_t *trits, uint32_t *bigint)
 
 static void bigint_to_trits_mem(uint32_t *bigint, trit_t *trits)
 {
+    unsigned int i;
+
     // the two's complement represention is only correct, if the number fits
     // into 48 bytes, i.e. has the 243th trit set to 0
     bigint_set_last_trit_zero(bigint);
@@ -325,7 +342,7 @@ static void bigint_to_trits_mem(uint32_t *bigint, trit_t *trits)
     }
 
     // ignore the 243th trit, as it cannot be fully represented in 48 bytes
-    for (unsigned int i = 0; i < 242; i++) {
+    for (i = 0; i < 242; i++) {
         const uint32_t rem = bigint_div_byte_mem(bigint, BASE);
         trits[i] = rem - 1; // convert back to balanced
     }
@@ -336,13 +353,14 @@ static void bigint_to_trits_mem(uint32_t *bigint, trit_t *trits)
 bool int64_to_trits(int64_t value, trit_t *trits, unsigned int num_trits)
 {
     const bool is_negative = value < 0;
+    unsigned int i;
     if (is_negative) {
         value = -value;
     }
 
     memset(trits, 0, num_trits);
 
-    for (unsigned int i = 0; i < num_trits; i++) {
+    for (i = 0; i < num_trits; i++) {
         if (value == 0) {
             return false;
         }
@@ -375,8 +393,10 @@ void trits_to_int64(trit_t *trits, unsigned int num_trits, int64_t *value)
  */
 static void bigint_to_bytes(const uint32_t *bigint, unsigned char *bytes)
 {
+    unsigned int i;
+
     // reverse word order
-    for (unsigned int i = 12; i-- > 0; bytes += 4) {
+    for (i = 12; i-- > 0; bytes += 4) {
         const uint32_t num = bigint[i];
 
         bytes[0] = (num >> 24) & 0xFF;
@@ -392,8 +412,10 @@ static void bigint_to_bytes(const uint32_t *bigint, unsigned char *bytes)
  */
 static void bytes_to_bigint(const unsigned char *bytes, uint32_t *bigint)
 {
+    unsigned int i;
+
     // reverse word order
-    for (unsigned int i = 12; i-- > 0; bytes += 4) {
+    for (i = 12; i-- > 0; bytes += 4) {
         bigint[i] = (uint32_t)bytes[0] << 24 | (uint32_t)bytes[1] << 16 |
                     (uint32_t)bytes[2] << 8 | (uint32_t)bytes[3] << 0;
     }
@@ -420,9 +442,11 @@ void trytes_to_bytes(const tryte_t *trytes, unsigned char *bytes)
 void chars_to_bytes(const char *chars, unsigned char *bytes,
                     unsigned int chars_len)
 {
+    unsigned int i;
+
     mutex_lock(&iota_wallet_trits_mutex);
     clear_trits_buffer();
-    for (unsigned int i = 0; i < chars_len / 81; i++) {
+    for (i = 0; i < chars_len / 81; i++) {
 
         chars_to_trits(chars + i * 81, trits_buffer, 81);
         // bigint can only handle 242 trits
@@ -452,7 +476,9 @@ void bytes_to_trytes(const unsigned char *bytes, tryte_t *trytes)
 void bytes_to_chars(const unsigned char *bytes, char *chars,
                     unsigned int bytes_len)
 {
-    for (unsigned int i = 0; i < bytes_len / 48; i++) {
+    unsigned int i;
+
+    for (i = 0; i < bytes_len / 48; i++) {
         tryte_t trytes[81];
         bytes_to_trytes(bytes + i * 48, trytes);
         trytes_to_chars(trytes, chars + i * 81, 81);
@@ -472,8 +498,9 @@ static void increment_trit_aera(trit_t *trits, unsigned int start_trit,
                                 unsigned int num_trits)
 {
     trit_t *trit = trits + start_trit;
+    unsigned int i;
 
-    for (unsigned int i = 0; i < num_trits; i++, trit++) {
+    for (i = 0; i < num_trits; i++, trit++) {
         if (*trit < MAX_TRIT_VALUE) {
             *trit += 1;
             break;
@@ -512,7 +539,9 @@ void bytes_add_u32_mem(unsigned char *bytes, uint32_t summand)
 
 int tryte_chars_validate(const char chars_in[], unsigned int len)
 {
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i;
+
+    for (i = 0; i < len; i++) {
         if ((chars_in[i] != '9') &&
                 ((chars_in[i] < 'A') || (chars_in[i] > 'Z'))) {
             return -1;
@@ -523,7 +552,9 @@ int tryte_chars_validate(const char chars_in[], unsigned int len)
 
 void chars_increment(char chars_in[], unsigned int len)
 {
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i;
+
+    for (i = 0; i < len; i++) {
         if (chars_in[i] == '9') {
             chars_in[i] = 'A';
             break;

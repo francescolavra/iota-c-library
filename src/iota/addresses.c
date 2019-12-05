@@ -11,7 +11,9 @@
 static void digest_single_chunk(unsigned char *key_fragment,
                                 cx_sha3_t *digest_sha3, cx_sha3_t *round_sha3)
 {
-    for (int k = 0; k < 26; k++) {
+    int k;
+
+    for (k = 0; k < 26; k++) {
         kerl_initialize(round_sha3);
         kerl_absorb_chunk(round_sha3, key_fragment);
         kerl_squeeze_final_chunk(round_sha3, key_fragment);
@@ -71,8 +73,10 @@ void get_public_addr_mem(const unsigned char *seed_bytes, uint32_t idx,
     // use last chunk of buffer, as this is only used after the key is generated
     unsigned char *key_f = digest + NUM_HASH_BYTES * (security - 1);
     
-    for (uint8_t i = 0; i < security; i++) {
-        for (uint8_t j = 0; j < 27; j++) {
+    uint8_t i, j;
+
+    for (i = 0; i < security; i++) {
+        for (j = 0; j < 27; j++) {
             // use address output array as a temp Kerl state storage
             unsigned char *state = address_bytes;
 

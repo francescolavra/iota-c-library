@@ -13,7 +13,9 @@ bool in_range(int x, int min, int max ){
 
 size_t common_strnlen( const char * s, size_t maxlen )
 {
-    for( size_t len = 0; len != maxlen; len++ )
+    size_t len;
+
+    for( len = 0; len != maxlen; len++ )
     {
         if(s[len] == '\0')
             return len;

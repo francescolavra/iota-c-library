@@ -26,12 +26,14 @@ static void clear_build_essence_trits(void){
 
 void bundle_initialize(BUNDLE_CTX *ctx, uint32_t last_index)
 {
+    int i;
+
     if (last_index >= MAX_BUNDLE_INDEX_SZ) {
         THROW(INVALID_PARAMETER);
     }
     ctx->current_index = 0;
     ctx->last_index = 0;
-    for(int i = 0; i < MAX_BUNDLE_INDEX_SZ; i++){
+    for(i = 0; i < MAX_BUNDLE_INDEX_SZ; i++){
         ctx->values[i] = 0;
         ctx->indices[i] = 0;
     }
@@ -121,11 +123,12 @@ static inline int increment_tryte(int max, tryte_t *tryte)
 static void normalize_hash_fragment(tryte_t *fragment_trytes)
 {
     int sum = 0;
-    for (unsigned int j = 0; j < 27; j++) {
+    unsigned int j;
+    for (j = 0; j < 27; j++) {
         sum += fragment_trytes[j];
     }
 
-    for (unsigned int j = 0; j < 27; j++) {
+    for (j = 0; j < 27; j++) {
         if (sum > 0) {
             sum -= decrement_tryte(sum, &fragment_trytes[j]);
         }
@@ -140,7 +143,9 @@ static void normalize_hash_fragment(tryte_t *fragment_trytes)
 
 static inline void normalize_hash(tryte_t *hash_trytes)
 {
-    for (unsigned int i = 0; i < 3; i++) {
+    unsigned int i;
+
+    for (i = 0; i < 3; i++) {
         normalize_hash_fragment(hash_trytes + i * 27);
     }
 }
@@ -165,7 +170,8 @@ static bool validate_address(const unsigned char *addr_bytes,
 static bool validate_balance(const BUNDLE_CTX *ctx)
 {
     int64_t balance = 0;
-    for (unsigned int i = 0; i <= ctx->last_index; i++) {
+    unsigned int i;
+    for (i = 0; i <= ctx->last_index; i++) {
         balance += ctx->values[i];
     }
 
@@ -175,12 +181,14 @@ static bool validate_balance(const BUNDLE_CTX *ctx)
 /** @brief Checks that every input transaction has meta transactions. */
 static bool validate_meta_txs(const BUNDLE_CTX *ctx, unsigned int security)
 {
-    for (unsigned int i = 0; i <= ctx->last_index; i++) {
+    unsigned int i, j;
+
+    for (i = 0; i <= ctx->last_index; i++) {
         if (ctx->values[i] < 0) {
             const unsigned char *input_addr_bytes =
                 bundle_get_address_bytes(ctx, i);
 
-            for (unsigned int j = 1; j < security; j++) {
+            for (j = 1; j < security; j++) {
                 if (i + j > ctx->last_index || ctx->values[i + j] != 0) {
                     return false;
                 }
@@ -201,7 +209,9 @@ static bool validate_address_indices(const BUNDLE_CTX *ctx,
                                      const unsigned char *seed_bytes,
                                      unsigned int security)
 {
-    for (unsigned int i = 0; i <= ctx->last_index; i++) {
+    unsigned int i;
+
+    for (i = 0; i <= ctx->last_index; i++) {
         // only check the change and input addresses
         if (i == change_tx_index || ctx->values[i] < 0) {
             const unsigned char *addr_bytes = bundle_get_address_bytes(ctx, i);
@@ -218,14 +228,16 @@ static bool validate_address_indices(const BUNDLE_CTX *ctx,
 
 static bool validate_address_reuse(const BUNDLE_CTX *ctx)
 {
-    for (unsigned int i = 0; i <= ctx->last_index; i++) {
+    unsigned int i, j;
+
+    for (i = 0; i <= ctx->last_index; i++) {
 
         if (ctx->values[i] == 0) {
             continue;
         }
         const unsigned char *addr_bytes = bundle_get_address_bytes(ctx, i);
 
-        for (unsigned int j = i + 1; j <= ctx->last_index; j++) {
+        for (j = i + 1; j <= ctx->last_index; j++) {
             if (ctx->values[j] != 0 &&
                 memcmp(addr_bytes, bundle_get_address_bytes(ctx, j),
                        NUM_HASH_BYTES) == 0) {

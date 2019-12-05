@@ -40,15 +40,19 @@ void kerl_squeeze_chunk(cx_sha3_t *sha3, unsigned char *bytes_out)
 
 void kerl_squeeze_bytes(cx_sha3_t *sha3, unsigned char *bytes, unsigned int len)
 {
+    unsigned int i;
+
     // absorbing happens in 48 word bigint chunks
-    for (unsigned int i = 0; i < (len / CX_KECCAK384_SIZE); i++) {
+    for (i = 0; i < (len / CX_KECCAK384_SIZE); i++) {
         kerl_squeeze_chunk(sha3, bytes + CX_KECCAK384_SIZE * i);
     }
 }
 
 static inline void flip_hash_bytes(unsigned char *bytes)
 {
-    for (unsigned int i = 0; i < CX_KECCAK384_SIZE; i++) {
+    unsigned int i;
+
+    for (i = 0; i < CX_KECCAK384_SIZE; i++) {
         bytes[i] = ~bytes[i];
     }
 }

@@ -7,7 +7,8 @@
 bool validate_chars(const char *chars, unsigned int num_chars)
 {
     const size_t len = common_strnlen(chars, num_chars);
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i;
+    for (i = 0; i < len; i++) {
         const char c = chars[i];
         if (c != '9' && (c < 'A' || c > 'Z')) {
             return false;

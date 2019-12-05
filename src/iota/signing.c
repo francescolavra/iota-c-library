@@ -31,15 +31,16 @@ static void generate_signature_fragment(unsigned char *state,
                                         unsigned char *signature_bytes)
 {
     cx_sha3_t sha;
+    unsigned int j, k;
     kerl_reinitialize(&sha, state);
 
-    for (unsigned int j = 0; j < SIGNATURE_FRAGMENT_SIZE; j++) {
+    for (j = 0; j < SIGNATURE_FRAGMENT_SIZE; j++) {
         unsigned char *signature_f = signature_bytes + j * NUM_HASH_BYTES;
 
         // the output of the squeeze is exactly the private key
         kerl_state_squeeze_chunk(&sha, state, signature_f);
 
-        for (unsigned int k = MAX_TRYTE_VALUE - hash_fragment[j]; k-- > 0;) {
+        for (k = MAX_TRYTE_VALUE - hash_fragment[j]; k-- > 0;) {
             kerl_initialize(&sha);
             kerl_absorb_chunk(&sha, signature_f);
             kerl_squeeze_final_chunk(&sha, signature_f);
